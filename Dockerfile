@@ -10,12 +10,11 @@ RUN apt-get update && \
 
 # Install requirements
 RUN pip install --upgrade pip && \
-    pip install -r requirements.txt
-
-RUN python manage.py makemigrations && \
-    python manage.py migrate
-
+    pip install -r requirements.txt && \
+    python manage.py makemigrations && \
+    python manage.py migrate && \
+    python manage.py createsuperuser --noinput
 
 EXPOSE 8000
 
-CMD ["gunicorn", "--workers", "3", "--bind", "0.0.0.0:8000", "conduit.wsgi:application"]
+ENTRYPOINT ["gunicorn", "--workers", "3", "--bind", "0.0.0.0:8000", "conduit.wsgi:application"]
