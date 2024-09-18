@@ -3,6 +3,9 @@ name: Backend Deployment
 on:
   repository_dispatch:
     types: [trigger-backend-build]
+  push:
+    branches:
+      - master
 
 jobs:
   build_and_deploy:
@@ -49,14 +52,15 @@ jobs:
           key: ${{ secrets.SSH_PRIVATE_KEY }}
           script: |
             cd ${{ vars.IMAGE_PATH }}
+            docker image rm -f conduit-backend:latest
             docker load -i conduit-backend-image.tar
             docker stop conduit-backend || true
             docker rm conduit-backend || true
             docker run -d --name conduit-backend \
               -p 8085:8000 \
               -v conduit-db:/app/conduit/db.sqlite3 \
-              -e DJANGO_SUPERUSER_USERNAME=${{ vars.DJANGO_SUPERUSER_USERNAME }}
-              -e DJANGO_SUPERUSER_EMAIL=${{ vars.DJANGO_SUPERUSER_EMAIL }}
-              -e DJANGO_SUPERUSER_PASSWORD=${{ vars.DJANGO_SUPERUSER_PASSWORD }}
+              -e DJANGO_SUPERUSER_USERNAME=${{ vars.DJANGO_SUPERUSER_USERNAME }} \
+              -e DJANGO_SUPERUSER_EMAIL=${{ vars.DJANGO_SUPERUSER_EMAIL }} \
+              -e DJANGO_SUPERUSER_PASSWORD=${{ vars.DJANGO_SUPERUSER_PASSWORD }} \
               conduit-backend:latest
             rm -f conduit-backend-image.tar  # Optional cleanup
