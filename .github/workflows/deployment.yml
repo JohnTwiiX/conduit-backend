@@ -18,9 +18,10 @@ jobs:
       - name: Build Docker image with docker build
         run: |
           docker build \
-            -t conduit-backend:latest \
-            -f ./conduit-backend/Dockerfile \
-            ./conduit-backend
+            --build-arg API_URL=${{ vars.API_URL }} \
+            -t conduit-frontend:latest \
+            -f ./Dockerfile \
+            .
 
       - name: Save Docker image as tarball
         run: |
