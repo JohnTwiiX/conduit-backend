@@ -18,8 +18,7 @@ jobs:
       - name: Build Docker image with docker build
         run: |
           docker build \
-            --build-arg API_URL=${{ vars.API_URL }} \
-            -t conduit-frontend:latest \
+            -t conduit-backend:latest \
             -f ./Dockerfile \
             .
 
@@ -50,5 +49,8 @@ jobs:
             docker run -d --name conduit-backend \
               -p 8085:8000 \
               -v conduit-db:/app/conduit/db.sqlite3 \
+              -e DJANGO_SUPERUSER_USERNAME=${{ vars.DJANGO_SUPERUSER_USERNAME }}
+              -e DJANGO_SUPERUSER_EMAIL=${{ vars.DJANGO_SUPERUSER_EMAIL }}
+              -e DJANGO_SUPERUSER_PASSWORD=${{ vars.DJANGO_SUPERUSER_PASSWORD }}
               conduit-backend:latest
             rm -f conduit-backend-image.tar  # Optional cleanup
