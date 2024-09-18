@@ -1,0 +1,53 @@
+name: Backend Deployment
+
+on:
+  repository_dispatch:
+    types: [trigger-backend-build]
+
+jobs:
+  build_and_deploy:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout the backend repository
+        uses: actions/checkout@v3
+
+      - name: Set up Docker
+        uses: docker/setup-buildx-action@v2
+
+      - name: Build Docker image with docker build
+        run: |
+          docker build \
+            -t conduit-backend:latest \
+            -f ./conduit-backend/Dockerfile \
+            ./conduit-backend
+
+      - name: Save Docker image as tarball
+        run: |
+          docker save conduit-backend:latest -o conduit-backend-image.tar
+
+      - name: SCP Docker image to the server
+        uses: appleboy/scp-action@v0.1.9
+        with:
+          host: ${{ secrets.SERVER_IP }}
+          username: ${{ secrets.SSH_USER }}
+          key: ${{ secrets.SSH_PRIVATE_KEY }}
+          source: conduit-backend-image.tar
+          target: /home/your-user/docker-images/
+
+      - name: SSH into server and restart backend container
+        uses: appleboy/ssh-action@v0.1.10
+        with:
+          host: ${{ secrets.SERVER_IP }}
+          username: ${{ secrets.SSH_USER }}
+          key: ${{ secrets.SSH_PRIVATE_KEY }}
+          script: |
+            cd /home/your-user/docker-images/
+            docker load -i conduit-backend-image.tar
+            docker stop conduit-backend || true
+            docker rm conduit-backend || true
+            docker run -d --name conduit-backend \
+              -p 8085:8000 \
+              -v conduit-db:/app/conduit/db.sqlite3 \
+              conduit-backend:latest
+            rm -f conduit-backend-image.tar  # Optional cleanup
