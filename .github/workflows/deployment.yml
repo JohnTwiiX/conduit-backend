@@ -26,6 +26,9 @@ jobs:
         run: |
           docker save conduit-backend:latest -o conduit-backend-image.tar
 
+      - name: Ensure target directory exists
+        run: ssh -i ${{ secrets.SSH_PRIVATE_KEY }} -o StrictHostKeyChecking=no ${{ secrets.USER }}@${{ secrets.SERVER_IP }} "mkdir -p ${{ vars.IMAGE_PATH }}"
+
       - name: SCP Docker image to the server
         uses: appleboy/scp-action@v0.1.7
         with:
