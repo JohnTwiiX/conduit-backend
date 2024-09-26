@@ -19,6 +19,26 @@ This repo is functionality complete — PR's and issues welcome!
 
 If all went well then your command line prompt should now start with `(productionready)`.
 
-If your command line prompt does not start with `(productionready)` at this point, try running `pyenv activate productionready` or `cd ../productionready-django-api`. 
+If your command line prompt does not start with `(productionready)` at this point, try running `pyenv activate productionready` or `cd ../productionready-django-api`.
 
 If pyenv is still not working, visit us in the Thinkster Slack channel so we can help you out.
+
+## Automation
+
+This project has a workflow that builds the Docker images, connects to the server, uploads the image, and stops and starts the Docker container.
+
+1. set Github secrets and variables
+
+   - go to `setting -> security -> Secrets and variables -> actions`
+
+     | Variable                    | description                              | secret/variable |
+     | --------------------------- | ---------------------------------------- | --------------- |
+     | `DJANGO_SUPERUSER_EMAIL`    | the email for your superuser             | variable        |
+     | `DJANGO_SUPERUSER_USER`     | the user for your superuser              | variable        |
+     | `DJANGO_SUPERUSER_PASSWORD` | the password for your superuser          | variable        |
+     | `IMAGE_PATH`                | the path to the images                   | variable        |
+     | `SERVER_IP`                 | the ip of your server                    | secret          |
+     | `SSH_PRIVATE_KEY`           | the ssh private key to connect to server | secret          |
+     | `USER`                      | the user on the server                   | secret          |
+
+1. when you push to your main branch, this action will be triggered and triggered from the main repo
